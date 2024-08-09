@@ -4,7 +4,6 @@ import com.jodexindustries.dcblockanimations.bootstrap.Main;
 import com.jodexindustries.dcblockanimations.config.Config;
 import com.jodexindustries.donatecase.api.events.AnimationEndEvent;
 import com.jodexindustries.donatecase.api.events.OpenCaseEvent;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Lidded;
 import org.bukkit.event.EventHandler;
@@ -39,14 +38,13 @@ public class Tools implements Listener {
 
     @EventHandler
     public void openCaseEvent(OpenCaseEvent e) {
-        Location location = e.getBlock().getLocation();
-
         String caseType = e.getCaseType();
         if(!config.getConfig().getStringList("enabled-types").contains(caseType)) return;
 
         openBlock(e.getBlock());
 
-        main.getCaseManager().getAnimationManager().startAnimation(e.getPlayer(), location, caseType);
+//        main.getCaseManager().getAnimationManager().startAnimation(e.getPlayer(),
+//                e.getBlock().getLocation(), caseType);
 
     }
 
