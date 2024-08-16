@@ -3,6 +3,7 @@ package com.jodexindustries.dcblockanimations.utils;
 import com.jodexindustries.dcblockanimations.bootstrap.Main;
 import com.jodexindustries.dcblockanimations.config.Config;
 import com.jodexindustries.donatecase.api.events.AnimationEndEvent;
+import com.jodexindustries.donatecase.api.events.DonateCaseReloadEvent;
 import com.jodexindustries.donatecase.api.events.OpenCaseEvent;
 import org.bukkit.block.Block;
 import org.bukkit.block.Lidded;
@@ -22,11 +23,12 @@ public class Tools implements Listener {
     public Tools(Main main) {
         this.main = main;
         this.config = new Config(main);
-
     }
+
     public void load() {
         main.getPlugin().getServer().getPluginManager().registerEvents(this, main.getPlugin());
     }
+
     public void unload() {
         HandlerList.unregisterAll(this);
     }
@@ -37,32 +39,36 @@ public class Tools implements Listener {
     }
 
     @EventHandler
-    public void openCaseEvent(OpenCaseEvent e) {
+    public void onCaseOpen(OpenCaseEvent e) {
         String caseType = e.getCaseType();
-        if(!config.getConfig().getStringList("enabled-types").contains(caseType)) return;
+        if (!config.getConfig().getStringList("enabled-types").contains(caseType)) return;
 
         openBlock(e.getBlock());
-
-//        main.getCaseManager().getAnimationManager().startAnimation(e.getPlayer(),
-//                e.getBlock().getLocation(), caseType);
-
     }
 
     @EventHandler
     public void onAnimationEnd(AnimationEndEvent e) {
-        Block block = e.getLocation().getBlock();
-        Lidded openedBlock = openedBlocks.get(block);
-        if(openedBlock == null) return;
+        closeBlock(e.getLocation().getBlock());
+    }
 
-        openedBlocks.remove(block);
-        openedBlock.close();
+    @EventHandler
+    public void onConfigReload(DonateCaseReloadEvent e) {
+        if (e.getType() == DonateCaseReloadEvent.Type.CONFIG) reloadConfig();
     }
 
     private void openBlock(Block block) {
-        if(block.getState() instanceof Lidded) {
+        if (block.getState() instanceof Lidded) {
             Lidded lidded = (Lidded) block.getState();
             lidded.open();
             openedBlocks.put(block, lidded);
         }
+    }
+
+    private void closeBlock(Block block) {
+        Lidded openedBlock = openedBlocks.get(block);
+        if (openedBlock == null) return;
+
+        openedBlocks.remove(block);
+        openedBlock.close();
     }
 }
